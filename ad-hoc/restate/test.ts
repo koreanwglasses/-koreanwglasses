@@ -1,36 +1,33 @@
 import { Cascade } from "@koreanwglasses/cascade";
-import { client, evaluate, include, policy, PUBLIC } from "restate/core";
+import { pack, Client } from "restate/core";
 
-// @policy(PUBLIC)
 export class Test {
   private _field = 0;
   private _allow = false;
 
   constructor() {
-    // setInterval(() => {
-    //   this._allow = !this._allow;
-    //   this.allow.invalidate();
-    // }, 5000);
+    setInterval(() => {
+      this._field++;
+      this.field.invalidate();
+    }, 5000);
   }
 
-  field = new Cascade(() => this._field);
+  field = new Cascade(() => this._field, { autoclose: false });
 
-  allow = new Cascade(() => this._allow);
+  allow = new Cascade(() => this._allow, { autoclose: false });
 
-  cons = [0, 1]
+  cons = [0, 1];
 
-  @include
-  setField(@client client?: any) {
-    console.log("Client", client);
+  @pack
+  get field2() {
+    return "hello"
   }
 
   private static _instance?: Test;
 
-  @include
   static get instance(): Test {
     return (this._instance ??= new Test());
   }
 
-  @include
   static test = 100;
 }

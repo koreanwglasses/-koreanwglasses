@@ -3,6 +3,7 @@ import { Server as IO } from "socket.io";
 import session from "express-session";
 import express from "express";
 import { Test } from "./test";
+import "@koreanwglasses/cascade/debug"
 
 const io = new IO();
 const packed = new RestateServer({
