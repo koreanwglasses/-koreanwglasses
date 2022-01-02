@@ -66,9 +66,20 @@ export class User extends MongoRestate<UserData> {
    * directly
    */
 
-  id = this._store.id;
-  username = this._store.username;
-  roomId = this._store.roomId;
+  @pack
+  get id() {
+    return this._store.id;
+  }
+
+  @pack
+  get username() {
+    return this._store.username;
+  }
+
+  @pack
+  get roomId() {
+    return this._store.roomId;
+  }
 
   @pack
   get isConnected() {

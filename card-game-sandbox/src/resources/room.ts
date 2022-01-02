@@ -8,7 +8,7 @@ import {
   Client,
   clientIn,
   view,
-  WithViews,
+  pack
 } from "@koreanwglasses/restate";
 import { Game } from "./game";
 
@@ -38,8 +38,15 @@ export class Room extends MongoRestate<RoomData> {
   // VIEWS //
   ///////////
 
-  joinCode = this._store.joinCode;
-  name = this._store.name;
+  @pack
+  get joinCode() {
+    return this._store.joinCode;
+  }
+
+  @pack
+  get name() {
+    return this._store.name;
+  }
 
   /**
    * These queries are composed of base queries and should not be invalidated
