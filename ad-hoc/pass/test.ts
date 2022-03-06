@@ -1,5 +1,13 @@
 import { Cascade } from "@koreanwglasses/cascade";
-import { policy, ALLOW, DENY, packView, unpackView, action } from "pass";
+import {
+  policy,
+  ALLOW,
+  DISABLE,
+  DENY,
+  packView,
+  unpackView,
+  action,
+} from "pass";
 
 export class Test {
   private _field = 0;
@@ -15,7 +23,9 @@ export class Test {
   field = new Cascade(() => this._field);
 
   @action
-  @policy(ALLOW)
+  @policy((client, target: Test) =>
+    target.field.chain((field) => (field < 7 ? ALLOW : DISABLE))
+  )
   inc() {}
 }
 
