@@ -7,10 +7,10 @@ export const ALLOW = { read: true, execute: true };
 export const DISABLE = { read: true, execute: false };
 export const DENY = { read: false, execute: false };
 
-export type Policy = (
+export type Policy<T = any> = (
   client: any,
-  target: any,
-  key?: any
+  target: T,
+  key?: keyof T
 ) => Resolvable<Rights>;
 
 export const DEFAULT_POLICY = () => INHERIT;

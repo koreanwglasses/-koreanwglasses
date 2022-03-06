@@ -1,7 +1,7 @@
 import { getMetadata } from "./metadata";
 import { Policy, Rights } from "./policy";
 
-function enumerate(target: any, key: string) {
+function enumerate(target: any, key: any) {
   getMetadata(target, key).enumerate = true;
 }
 
