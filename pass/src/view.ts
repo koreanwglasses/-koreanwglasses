@@ -65,7 +65,7 @@ export function packView<T, K extends keyof T>(
 
   return Cascade.resolve(obj[key]).chain((resource) =>
     Cascade.all([
-      metadata.getPolicy(obj, key)(client, resource, key),
+      metadata.getPolicy(obj, key)(client, obj, key),
       metadata.getPolicy(resource)(client, resource),
     ]).chain((rights) => {
       const { read, execute } = joinRights(...rights);
