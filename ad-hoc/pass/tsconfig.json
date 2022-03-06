@@ -7,8 +7,7 @@
     "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
-      "pass": ["../../pass/src"],
-      "cascade": ["../../cascade/src"]
+      "pass": ["../../pass/src"]
     }
   }
 }

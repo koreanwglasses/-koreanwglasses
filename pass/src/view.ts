@@ -12,10 +12,22 @@ export type View<T> = T extends Promise<infer S>
   ? (...args: S) => Cascade<View<R>> | null
   : { [K in keyof T]?: View<T[K]> };
 
-export type PackedPrimitive<T> = { isPrimitive: true; value: T };
-export type PackedAction = { isAction: true; canExecute: boolean };
+export type PackedPrimitive<T> = {
+  isPrimitive: true;
+  isAction?: false;
+  isObject?: false;
+  value: T;
+};
+export type PackedAction = {
+  isAction: true;
+  isPrimitive?: false;
+  isObject?: false;
+  canExecute: boolean;
+};
 export type PackedObject<T> = {
   isObject: true;
+  isPrimitive?: false;
+  isAction?: false;
   obj: { [K in keyof T]?: PackedView<T[K]> };
 };
 
@@ -93,3 +105,29 @@ export function packView<T, K extends keyof T>(
     })
   );
 }
+
+export const unpackView = <T>(
+  packed: PackedView<T>,
+  path = [] as string[],
+  remote?: (path: string[], args: any[]) => Cascade<any>
+): View<T> => {
+  if (packed.isPrimitive) return packed.value as View<T>;
+  if (packed.isAction) {
+    if (packed.canExecute) {
+      return ((...args) => remote?.(path, args)) as View<T>;
+    } else {
+      return null as View<T>;
+    }
+  }
+  if (packed.isObject) {
+    return Object.fromEntries(
+      Object.entries(packed.obj)
+        .filter(([, value]) => value !== undefined)
+        .map(
+          ([key, value]) =>
+            [key, unpackView(value as any, [...path, key], remote)] as const
+        )
+    ) as View<T>;
+  }
+  throw new Error("Unexpected condition");
+};
