@@ -1,12 +1,12 @@
 import { getMetadata } from "./metadata";
-import { Policy, Rights } from "./policy";
+import { Policy, Access } from "./policy";
 
 function enumerate(target: any, key: any) {
   getMetadata(target, key).enumerate = true;
 }
 
 /** @internal */
-export function policy_1(policy: Policy | Rights) {
+export function policy_1(policy: Policy | Access) {
   return function (target: any, key?: string) {
     if (key) enumerate(target, key);
     getMetadata(target, key).policy =

@@ -1,6 +1,6 @@
 import { Resolvable } from "@koreanwglasses/cascade";
 
-export type Rights = { read?: boolean; execute?: boolean };
+export type Access = { read?: boolean; execute?: boolean };
 
 export const INHERIT = {};
 export const ALLOW = { read: true, execute: true };
@@ -11,11 +11,11 @@ export type Policy<T = any> = (
   client: any,
   target: T,
   key?: keyof T
-) => Resolvable<Rights>;
+) => Resolvable<Access>;
 
 export const DEFAULT_POLICY = () => INHERIT;
 
-export const joinRights = (...rights: Rights[]) => {
+export const joinRights = (...rights: Access[]) => {
   const { read, execute } = rights.reduce((a, b) => ({
     read: a.read ?? b.read,
     execute: a.execute ?? b.execute,

@@ -32,7 +32,7 @@ export class Test {
 const t = new Test();
 
 const packed = packView(null, t);
-packed.chain((x) => console.log("packed", JSON.stringify(x)));
+// packed.chain((x) => console.log("packed", JSON.stringify(x)));
 
 const unpacked = packed.chain(unpackView);
 unpacked.chain((x) => console.log("unpacked", x));
