@@ -4,6 +4,7 @@
     "ad-hoc/*",
     "card-game-sandbox",
     "cascade",
+    "pass",
     "restate"
   ],
   "devDependencies": {

@@ -1,0 +1,1 @@
+export const SPC_METADATA_KEY = "SPC_METADATA_KEY"
