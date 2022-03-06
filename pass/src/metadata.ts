@@ -6,6 +6,7 @@ export type Key = string | number | symbol;
 export interface Metadata {
   policy?: Policy;
   isAction?: boolean;
+  enumerate?: boolean;
   props?: Record<Key, Metadata>;
 }
 
@@ -19,6 +20,11 @@ export function getMetadata(obj: any, key?: Key): Metadata {
   }
   return ((getMetadata(obj).props ??= {})[key] ??= {});
 }
+
+export const getEnumerated = <T>(obj: T): (keyof T)[] =>
+  Object.entries(getMetadata(obj).props ?? {})
+    .filter(([key, value]) => value.enumerate)
+    .map(([key, value]) => key as keyof T);
 
 export const getPolicy = (obj: any, key?: Key): Policy => {
   return getMetadata(obj, key).policy ?? DEFAULT_POLICY;

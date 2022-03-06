@@ -11,6 +11,6 @@ export const policy = ((
 export const action = ((
   ...args: Parameters<typeof action_0> | Parameters<typeof action_1>
 ) => {
-  if (args.length == 2) return action_1(...args);
-  else return action_0(...args);
+  if (args.length === 1) return action_0(...args);
+  else return action_1(...args);
 }) as typeof action_0 & typeof action_1;

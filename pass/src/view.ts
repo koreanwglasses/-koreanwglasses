@@ -85,7 +85,7 @@ export function packView<T, K extends keyof T>(
         resource &&
         (typeof resource === "object" || typeof resource === "function")
       ) {
-        const keys = Object.keys(resource);
+        const keys = metadata.getEnumerated(resource);
         return Cascade.all(
           keys.map((key) => packView(client, resource, key as keyof T[K]))
         )

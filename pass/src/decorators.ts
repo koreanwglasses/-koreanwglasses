@@ -2,8 +2,7 @@ import { getMetadata } from "./metadata";
 import { Policy, Rights } from "./policy";
 
 function enumerate(target: any, key: string) {
-  const descriptor = Reflect.getOwnPropertyDescriptor(target, key);
-  if (descriptor) descriptor.enumerable = true;
+  getMetadata(target, key).enumerate = true;
 }
 
 /** @internal */
