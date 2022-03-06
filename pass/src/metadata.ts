@@ -21,10 +21,14 @@ export function getMetadata(obj: any, key?: Key): Metadata {
   return ((getMetadata(obj).props ??= {})[key] ??= {});
 }
 
-export const getEnumerated = <T>(obj: T): (keyof T)[] =>
-  Object.entries(getMetadata(obj).props ?? {})
-    .filter(([key, value]) => value.enumerate)
-    .map(([key, value]) => key as keyof T);
+export const getEnumerated = <T>(obj: T): (keyof T)[] => [
+  ...new Set([
+    ...(Object.keys(obj) as (keyof T)[]),
+    ...Object.entries(getMetadata(obj).props ?? {})
+      .filter(([key, value]) => value.enumerate)
+      .map(([key, value]) => key as keyof T),
+  ]),
+];
 
 export const getPolicy = (obj: any, key?: Key): Policy => {
   return getMetadata(obj, key).policy ?? DEFAULT_POLICY;
