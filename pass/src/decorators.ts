@@ -19,6 +19,12 @@ export function action(target: any, key: string) {
   getMetadata(target, key).isAction = true;
 }
 
+export function mountpath(path: string) {
+  return function (target: any) {
+    getMetadata(target).path = path;
+  };
+}
+
 export function query(route?: string) {
   return function (target: any, key?: string) {
     if (key === undefined) {
@@ -29,7 +35,9 @@ export function query(route?: string) {
           super(...args);
 
           // Compute path
-          let path = getMetadata(target).route;
+          let path = getMetadata(target).path ?? "";
+          path += "/" + getMetadata(target).route;
+          path = path.replace(/\/+/g, "/");
           Object.entries(getMetadata(target).params ?? {}).forEach(
             ([key, i]) => {
               if (i !== undefined) path = path?.replace(`:${key}`, args[i]);

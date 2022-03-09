@@ -1,6 +1,6 @@
 import { Cascade, Resolvable } from "@koreanwglasses/cascade";
 import * as metadata from "./metadata";
-import { ALLOW, joinRights } from "./policy";
+import { ALLOW, getPolicy, joinRights } from "./policy";
 
 export type View<T> = T extends Promise<infer S>
   ? View<S>
@@ -77,8 +77,8 @@ export function packView<T, K extends keyof T>(
 
   return Cascade.resolve(parent[key]).chain((target) =>
     Cascade.all([
-      metadata.getPolicy(parent, key)(client, parent, key),
-      metadata.getPolicy(target)(client, target),
+      getPolicy(parent, key)(client, parent, key),
+      getPolicy(target)(client, target),
     ]).chain((rights) => {
       const { read, execute } = joinRights(...rights);
 

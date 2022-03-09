@@ -1,6 +1,6 @@
 import { Access } from ".";
 import { CLIENT_PARAM, PACS_METADATA } from "./consts";
-import { DEFAULT_POLICY, Policy } from "./policy";
+import { Policy } from "./policy";
 
 export type Key = string | number | symbol;
 
@@ -39,11 +39,6 @@ export const getEnumerated = <T>(target: T): (keyof T)[] => [
   ]),
 ];
 
-export const getPolicy = (target: any, key?: Key): Policy => {
-  const policy = getMetadata(target, key).policy ?? DEFAULT_POLICY;
-  if (typeof policy === "function") return policy;
-  return () => policy;
-};
 
 export const getParams = (target: any, key: Key) =>
   (getMetadata(target, key).params ??= {});

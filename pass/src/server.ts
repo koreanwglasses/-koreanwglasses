@@ -1,5 +1,5 @@
 import { Cascade, Resolvable } from "@koreanwglasses/cascade";
-import { getEnumerated, getMetadata, joinRights } from ".";
+import { getEnumerated, getMetadata, getPolicy, joinRights } from ".";
 import * as metadata from "./metadata";
 import { CLIENT_PARAM } from "./consts";
 
@@ -111,8 +111,8 @@ export class Server {
     // Check policy
     const { read, execute } = joinRights(
       ...(await Cascade.all([
-        metadata.getPolicy(base, key)(client, base, key),
-        metadata.getPolicy(base[key])(client, base[key]),
+        getPolicy(base, key)(client, base, key),
+        getPolicy(base[key])(client, base[key]),
       ]).toPromise())
     );
 

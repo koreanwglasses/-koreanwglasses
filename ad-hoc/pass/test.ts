@@ -10,6 +10,7 @@ import {
   Server,
   query,
   param,
+  mountpath,
 } from "pass";
 
 export class Test {
@@ -41,6 +42,7 @@ const t = new Test();
 // unpacked.chain((x) => console.log("unpacked", x));
 
 @policy(ALLOW)
+@mountpath("/api/user")
 @query("/:id")
 class User {
   static _cache = {};
@@ -54,7 +56,6 @@ class User {
 
   @policy(ALLOW)
   x = {
-    // Returns empty object in view because of default deny
     y: 2,
   };
 
