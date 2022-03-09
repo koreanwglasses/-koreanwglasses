@@ -75,7 +75,12 @@ class User {
 
 (async () => {
   const server = new Server();
-  const { result } = await server.resolve(null, User, ["test", "data"], {});
+  const { result } = await server.resolve(
+    null,
+    User,
+    ["test", "data", "x"],
+    {}
+  );
 
   const view = await packView(
     null,
