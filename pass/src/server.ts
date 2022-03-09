@@ -186,6 +186,7 @@ export class Server {
       if (typeof action !== "function") throw new Error("Not a function");
 
       const paramMap = getMetadata(base, key).params ?? {};
+      // Ignore path params
       const args = prepArgs(paramMap, bodyParams);
 
       const result = await Cascade.resolve(
