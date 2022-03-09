@@ -118,7 +118,7 @@ export class Server {
 
     if (!read) throw new Error("Missing access");
 
-    if (getMetadata(base[key]).isConstructor) {
+    if (getMetadata(base[key]).isConstructorQuery) {
       const cons = base[key] as new (...args: any[]) => unknown;
       if (typeof cons !== "function") throw new Error("Not a function");
 

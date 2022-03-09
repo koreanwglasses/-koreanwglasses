@@ -12,7 +12,7 @@ export interface Metadata {
   policy?: Policy | Access;
 
   route?: string;
-  isConstructor?: boolean;
+  isConstructorQuery?: boolean;
   isAction?: boolean;
   isQuery?: boolean;
   params?: Partial<Record<string | typeof CLIENT_PARAM, number>>;

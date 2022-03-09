@@ -41,7 +41,7 @@ export function query(route?: string) {
         }
       }
 
-      getMetadata(target).isConstructor = true;
+      getMetadata(target).isConstructorQuery = true;
       getMetadata(target).route = route;
 
       return Wrapper as typeof target;
