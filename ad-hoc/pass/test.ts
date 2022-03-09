@@ -42,7 +42,7 @@ const t = new Test();
 // unpacked.chain((x) => console.log("unpacked", x));
 
 @policy(ALLOW)
-@route(":id")
+@route("/:id")
 class User {
   static _cache = {};
 
@@ -73,6 +73,8 @@ class User {
   @action
   doSomething() {}
 }
+
+console.log(User);
 
 (async () => {
   const server = new Server();

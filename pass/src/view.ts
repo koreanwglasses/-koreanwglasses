@@ -39,6 +39,7 @@ interface PackedResource<T> extends Packed {
   isState?: false;
   isAction?: false;
 
+  path?: string;
   properties: { [K in keyof T]?: PackedView<T[K]> };
 }
 
@@ -97,6 +98,7 @@ export function packView<T, K extends keyof T>(
         (typeof target === "object" || typeof target === "function")
       ) {
         const keys = metadata.getEnumerated(target);
+        const path = metadata.getMetadata(target).path;
         return Cascade.all(
           keys.map((key) => packView(client, target, key as keyof T[K]))
         )
@@ -107,6 +109,7 @@ export function packView<T, K extends keyof T>(
             (entries) =>
               ({
                 isResource: true,
+                path,
                 properties: Object.fromEntries(entries),
               } as PackedResource<T[K]> as PackedView<T[K]>)
           );

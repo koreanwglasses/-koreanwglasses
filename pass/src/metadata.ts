@@ -5,6 +5,7 @@ import { DEFAULT_POLICY, Policy } from "./policy";
 export type Key = string | number | symbol;
 
 export interface Metadata {
+  path?: string;
   props?: Record<Key, Metadata>;
 
   enumerate?: boolean;

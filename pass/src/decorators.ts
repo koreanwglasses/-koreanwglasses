@@ -1,5 +1,5 @@
 import { getParams } from ".";
-import { CLIENT_PARAM } from "./consts";
+import { CLIENT_PARAM, PACS_METADATA } from "./consts";
 import { getMetadata } from "./metadata";
 import { Policy, Access } from "./policy";
 
@@ -26,12 +26,34 @@ export function query(target: any, key: string) {
 
 export function route(route: string) {
   return function (target: any, key?: string) {
+    if (key === undefined) {
+      // Special handling for routes defined on a constructor
+
+      class Wrapper extends target {
+        constructor(...args: any[]) {
+          super(...args);
+
+          // Compute path
+          let path = getMetadata(target).route;
+          Object.entries(getMetadata(target).params ?? {}).forEach(
+            ([key, i]) => {
+              if (i !== undefined) path = path?.replace(`:${key}`, args[i]);
+            }
+          );
+
+          // Save path for future reference
+          getMetadata(this).path = path;
+        }
+      }
+
+      getMetadata(target).isConstructor = true;
+      getMetadata(target).route = route;
+
+      return Wrapper as typeof target;
+    }
+
     enumerate(target, key);
     getMetadata(target, key).route = route;
-
-    if (key === undefined) {
-      getMetadata(target).isConstructor = true;
-    }
   };
 }
 
