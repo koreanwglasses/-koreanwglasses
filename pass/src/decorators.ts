@@ -19,12 +19,7 @@ export function action(target: any, key: string) {
   getMetadata(target, key).isAction = true;
 }
 
-export function query(target: any, key: string) {
-  enumerate(target, key);
-  getMetadata(target, key).isQuery = true;
-}
-
-export function route(route: string) {
+export function query(route?: string) {
   return function (target: any, key?: string) {
     if (key === undefined) {
       // Special handling for routes defined on a constructor
@@ -53,6 +48,7 @@ export function route(route: string) {
     }
 
     enumerate(target, key);
+    getMetadata(target, key).isQuery = true;
     getMetadata(target, key).route = route;
   };
 }

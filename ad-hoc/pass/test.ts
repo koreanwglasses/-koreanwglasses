@@ -8,7 +8,6 @@ import {
   unpackView,
   action,
   Server,
-  route,
   query,
   param,
 } from "pass";
@@ -42,7 +41,7 @@ const t = new Test();
 // unpacked.chain((x) => console.log("unpacked", x));
 
 @policy(ALLOW)
-@route("/:id")
+@query("/:id")
 class User {
   static _cache = {};
 
@@ -74,16 +73,9 @@ class User {
   doSomething() {}
 }
 
-console.log(User);
-
 (async () => {
   const server = new Server();
-  const { result } = await server.resolve(
-    null,
-    { root: User },
-    ["test"],
-    {}
-  );
+  const { result } = await server.resolve(null, { root: User }, ["test"], {});
 
   const view = await packView(
     null,
