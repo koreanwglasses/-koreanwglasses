@@ -25,9 +25,13 @@ export function query(target: any, key: string) {
 }
 
 export function route(route: string) {
-  return function (target: any, key: string) {
+  return function (target: any, key?: string) {
     enumerate(target, key);
     getMetadata(target, key).route = route;
+
+    if (key === undefined) {
+      getMetadata(target).isConstructor = true;
+    }
   };
 }
 

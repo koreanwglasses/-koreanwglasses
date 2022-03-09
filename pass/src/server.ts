@@ -75,12 +75,15 @@ export class Server {
   ): Promise<{ handled: boolean; result?: Resolvable<any> }> {
     const match = getEnumerated(base)
       .map((key) => ({
-        route: getMetadata(base, key).route?.split("/") ?? [key.toString()],
+        route:
+          getMetadata(base, key).route ??
+          getMetadata(base[key]).route ??
+          key.toString(),
         key,
       }))
       .map(({ route, key }) => ({
-        // Remove empty segments
-        route: route.filter((seg) => seg.length > 0),
+        // Split and remove empty segments
+        route: route.split("/").filter((seg) => seg.length > 0),
         key,
       }))
       .map(({ route, key }) => ({
@@ -114,6 +117,24 @@ export class Server {
     );
 
     if (!read) throw new Error("Missing access");
+
+    if (getMetadata(base[key]).isConstructor) {
+      const cons = base[key] as new (...args: any[]) => unknown;
+      if (typeof cons !== "function") throw new Error("Not a function");
+
+      // Prepare arguments to query function based on metadata/decorators
+      const paramMap = getMetadata(base[key]).params ?? {};
+      const args = prepArgs(paramMap, pathParams);
+
+      // Construct
+      const result = new cons(...args);
+      if (remainder.length > 0) {
+        // Continue to resolve if query is not terminal (i.e. in the middle of the path)
+        return await this.resolve(client, result, remainder, bodyParams);
+      }
+
+      return { handled: true, result };
+    }
 
     if (getMetadata(base, key).isQuery) {
       const query = base[key] as (...args: any[]) => unknown;

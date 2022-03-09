@@ -41,6 +41,8 @@ const t = new Test();
 // const unpacked = packed.chain(unpackView);
 // unpacked.chain((x) => console.log("unpacked", x));
 
+@policy(ALLOW)
+@route(":id")
 class User {
   static _cache = {};
 
@@ -53,32 +55,31 @@ class User {
 
   @policy(ALLOW)
   x = {
+    // Returns empty object in view because of default deny
     y: 2,
   };
 
-  @policy(ALLOW)
-  z = 3;
-
-  private constructor(readonly id: string) {
+  constructor(@param("id") readonly id: string) {
     if (id in User._cache) return User._cache[id];
     User._cache[id] = this;
   }
 
   @policy(ALLOW)
-  @query
-  @route(":id/:extra")
-  static get(@param("id") id: string, @param("extra") extra: string) {
-    console.log(extra);
-    return new User(id);
+  get z() {
+    return this.id;
   }
+
+  @policy(ALLOW)
+  @action
+  doSomething() {}
 }
 
 (async () => {
   const server = new Server();
   const { result } = await server.resolve(
     null,
-    User,
-    ["test", "data", "x"],
+    { root: User },
+    ["test"],
     {}
   );
 
