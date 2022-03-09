@@ -50,28 +50,5 @@ export const getPolicy = (obj: any, key?: Key): Policy => {
 export const getParams = (obj: any, key: Key) =>
   (getMetadata(obj, key).params ??= {});
 
-/** @internal */
-export function policy_0<T>(policy: Policy | Access, obj: T): T;
-export function policy_0<T, K extends keyof T>(
-  policy: Policy | Access,
-  obj: T,
-  key: K
-): T[K];
-export function policy_0(policy: Policy | Access, obj: any, key?: Key) {
-  getMetadata(obj, key).policy = policy;
-  
-  if (key === undefined) return obj;
-  return obj[key];
-}
-
 export const isAction = (obj: any, key?: Key) =>
   getMetadata(obj, key).isAction ?? false;
-
-/** @internal */
-export const action_0 = <T extends (...args: any[]) => any>(func: T): T => {
-  function wrapper(this: any, ...params: Parameters<T>) {
-    return func.call(this, params);
-  }
-  getMetadata(wrapper).isAction = true;
-  return wrapper as T;
-};
