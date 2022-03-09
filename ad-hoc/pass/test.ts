@@ -83,5 +83,6 @@ class User {
     await Cascade.resolve(result).toPromise()
   ).toPromise();
 
-  console.log(JSON.stringify(view));
+  console.log(JSON.stringify(view, null, 2));
+  console.log(unpackView(view as any));
 })();
