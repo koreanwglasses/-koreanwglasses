@@ -12,82 +12,93 @@ export type View<T> = T extends Promise<infer S>
   ? (...args: S) => Cascade<View<R>> | null
   : { [K in keyof T]?: View<T[K]> };
 
-export type PackedPrimitive<T> = {
-  isPrimitive: true;
+interface Packed {
+  isState?: boolean;
+  isAction?: boolean;
+  isResource?: boolean;
+}
+
+interface PackedState<T> extends Packed {
+  isState: true;
   isAction?: false;
-  isObject?: false;
-  value: T;
-};
-export type PackedAction = {
+  isResource?: false;
+
+  data: T;
+}
+
+interface PackedAction extends Packed {
   isAction: true;
-  isPrimitive?: false;
-  isObject?: false;
+  isState?: false;
+  isResource?: false;
+
   canExecute: boolean;
-};
-export type PackedObject<T> = {
-  isObject: true;
-  isPrimitive?: false;
+}
+
+interface PackedResource<T> extends Packed {
+  isResource: true;
+  isState?: false;
   isAction?: false;
-  obj: { [K in keyof T]?: PackedView<T[K]> };
-};
+
+  properties: { [K in keyof T]?: PackedView<T[K]> };
+}
 
 export type PackedView<T> = T extends Promise<infer S>
   ? PackedView<S>
   : T extends Cascade<infer S>
   ? PackedView<S>
   : T extends null | undefined | string | boolean | number | Symbol
-  ? PackedPrimitive<T>
+  ? PackedState<T>
   : T extends (...args: any) => any
   ? PackedAction
-  : PackedObject<T>;
+  : PackedResource<T>;
 
 export function packView<T>(
   client: any,
-  obj: T
+  target: T
 ): Cascade<PackedView<T> | undefined>;
 export function packView<T, K extends keyof T>(
   client: any,
-  obj: T,
+  parent: T,
   key: K
 ): Cascade<PackedView<T[K]> | undefined>;
 export function packView<T, K extends keyof T>(
   client: any,
-  obj: T,
+  parent: T,
   key?: K
 ): Cascade<PackedView<T> | PackedView<T[K]> | undefined> {
   if (key === undefined) {
-    return Cascade.resolve(obj).chain((obj) => {
-      const wrapper = { obj };
-      metadata.getMetadata(wrapper, "obj").policy = () => ALLOW;
-      return packView(client, wrapper, "obj");
+    return Cascade.resolve(parent).chain((target) => {
+      const wrapper = { target };
+      metadata.getMetadata(wrapper, "target").policy = () => ALLOW;
+      return packView(client, wrapper, "target");
     });
   }
 
-  return Cascade.resolve(obj[key]).chain((resource) =>
+  return Cascade.resolve(parent[key]).chain((target) =>
     Cascade.all([
-      metadata.getPolicy(obj, key)(client, obj, key),
-      metadata.getPolicy(resource)(client, resource),
+      metadata.getPolicy(parent, key)(client, parent, key),
+      metadata.getPolicy(target)(client, target),
     ]).chain((rights) => {
       const { read, execute } = joinRights(...rights);
 
       if (!read) return undefined;
 
       const isAction =
-        metadata.isAction(obj, key) || metadata.isAction(resource);
+        metadata.isAction(parent, key) || metadata.isAction(target);
 
       if (isAction)
         return {
           isAction,
           canExecute: execute,
-        } as PackedView<T[K]>;
+        } as PackedAction as PackedView<T[K]>;
 
       if (
-        resource &&
-        (typeof resource === "object" || typeof resource === "function")
+        target &&
+        (typeof target === "object" || typeof target === "function")
       ) {
-        const keys = metadata.getEnumerated(resource);
+        const keys = metadata.getEnumerated(target);
         return Cascade.all(
-          keys.map((key) => packView(client, resource, key as keyof T[K]))
+          keys.map((key) => packView(client, target, key as keyof T[K]))
         )
           .chain((packedValues) =>
             keys.map((key, i) => [key, packedValues[i]] as const)
@@ -95,13 +106,15 @@ export function packView<T, K extends keyof T>(
           .chain(
             (entries) =>
               ({
-                isObject: true,
-                obj: Object.fromEntries(entries),
-              } as PackedView<T[K]>)
+                isResource: true,
+                properties: Object.fromEntries(entries),
+              } as PackedResource<T[K]> as PackedView<T[K]>)
           );
       }
 
-      return { isPrimitive: true, value: resource } as PackedView<T[K]>;
+      return { isState: true, data: target } as PackedState<T[K]> as PackedView<
+        T[K]
+      >;
     })
   );
 }
@@ -111,7 +124,7 @@ export const unpackView = <T>(
   path = [] as string[],
   remote?: (path: string[], args: any[]) => Cascade<any>
 ): View<T> => {
-  if (packed.isPrimitive) return packed.value as View<T>;
+  if (packed.isState) return packed.data as View<T>;
   if (packed.isAction) {
     if (packed.canExecute) {
       return ((...args) => remote?.(path, args)) as View<T>;
@@ -119,9 +132,9 @@ export const unpackView = <T>(
       return null as View<T>;
     }
   }
-  if (packed.isObject) {
+  if (packed.isResource) {
     return Object.fromEntries(
-      Object.entries(packed.obj)
+      Object.entries(packed.properties)
         .filter(([, value]) => value !== undefined)
         .map(
           ([key, value]) =>
