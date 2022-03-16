@@ -31,6 +31,7 @@ interface PackedAction extends Packed {
   isState?: false;
   isResource?: false;
 
+  params?: Record<number, string>;
   canExecute: boolean;
 }
 
@@ -87,11 +88,19 @@ export function packView<T, K extends keyof T>(
       const isAction =
         metadata.isAction(parent, key) || metadata.isAction(target);
 
-      if (isAction)
+      if (isAction) {
+        const params = metadata.getParams(parent, key);
+
         return {
           isAction,
+          params: Object.fromEntries(
+            Object.entries(params)
+              .filter(([key]) => typeof key === "string")
+              .map(([key, value]) => [value, key])
+          ),
           canExecute: execute,
         } as PackedAction as PackedView<T[K]>;
+      }
 
       if (
         target &&
@@ -124,13 +133,24 @@ export function packView<T, K extends keyof T>(
 
 export const unpackView = <T>(
   packed: PackedView<T>,
-  path = [] as string[],
-  remote?: (path: string[], args: any[]) => Cascade<any>
+  path = "",
+  remote?: (path: string, params: Record<string, any>) => Resolvable<any>
 ): View<T> => {
   if (packed.isState) return packed.data as View<T>;
   if (packed.isAction) {
     if (packed.canExecute) {
-      return ((...args) => remote?.(path, args)) as View<T>;
+      return ((...args) => {
+        const paramMap = packed.params ?? {};
+        const params: Record<string, any> = {};
+
+        args.forEach((arg, i) => {
+          if (!(i in paramMap))
+            throw new Error(`Unknown parameter at position ${i}`);
+          params[paramMap[i]] = arg;
+        });
+
+        return remote?.(path, params);
+      }) as View<T>;
     } else {
       return null as View<T>;
     }
@@ -141,7 +161,14 @@ export const unpackView = <T>(
         .filter(([, value]) => value !== undefined)
         .map(
           ([key, value]) =>
-            [key, unpackView(value as any, [...path, key], remote)] as const
+            [
+              key,
+              unpackView(
+                value as any,
+                [packed.path ?? path, key].join("/"),
+                remote
+              ),
+            ] as const
         )
     ) as View<T>;
   }

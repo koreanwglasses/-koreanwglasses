@@ -71,18 +71,35 @@ class User {
 
   @policy(ALLOW)
   @action
-  doSomething() {}
+  doSomething(@param("n") n: number) {
+    console.log(n);
+  }
 }
 
 (async () => {
   const server = new Server();
-  const { result } = await server.resolve(null, { ".": User }, ["test"], {});
+  const base = { api: { user: User } };
+
+  const { result } = await server.resolve(
+    null,
+    base,
+    ["api", "user", "test"],
+    {}
+  );
 
   const view = await packView(
     null,
-    await Cascade.resolve(result).toPromise()
+    await Cascade.resolve(result as User).toPromise()
   ).toPromise();
 
-  console.log(JSON.stringify(view, null, 2));
-  console.log(unpackView(view as any));
+  const unpacked = unpackView(view, "", (path, params) => {
+    console.log(`Action called on ${path}`);
+    server.resolve(
+      null,
+      base,
+      path.split("/").filter((seg) => seg.length),
+      params
+    );
+  });
+  unpacked.doSomething(10);
 })();

@@ -2,6 +2,7 @@ import { Cascade, Resolvable } from "@koreanwglasses/cascade";
 import { getEnumerated, getMetadata, getPolicy, joinRights } from ".";
 import * as metadata from "./metadata";
 import { CLIENT_PARAM } from "./consts";
+import { join } from "./lib/join";
 
 type Match = {
   isMatch: boolean;
@@ -77,7 +78,8 @@ export class Server {
       .map((key) => ({
         route:
           getMetadata(base, key).route ??
-          getMetadata(base[key]).route ??
+          (getMetadata(base[key]).route &&
+            join(key.toString(), getMetadata(base[key]).route!)) ??
           key.toString(),
         key,
       }))
