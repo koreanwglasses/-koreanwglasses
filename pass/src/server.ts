@@ -57,10 +57,10 @@ const prepArgs = (
 ) => {
   const args: any[] = [];
   Object.entries(params).forEach(([key, value]) => {
-    if (paramMap[key] === undefined)
+    const i = paramMap[key];
+    if (i === undefined)
       throw new Error(`Unknown or unused parameter "${key}"`);
 
-    const i = paramMap[key]!;
     while (args.length < i) args.push(undefined);
     args[i] = value;
   });
