@@ -93,15 +93,10 @@ class User {
     await Cascade.resolve(result as User).toPromise()
   ).toPromise();
 
-  const unpacked = unpackView(view, "", (path, params) => {
+  const unpacked = unpackView(view, "", (path, bodyParams) => {
     console.log(`Action called on ${path}`);
-    server.resolve(
-      {test: "string"},
-      base,
-      path.split("/").filter((seg) => seg.length),
-      params
-    );
+    server.resolve({ test: "string" }, base, path, bodyParams);
   });
-  
+
   unpacked.doSomething(10);
 })();
