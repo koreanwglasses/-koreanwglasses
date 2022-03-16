@@ -75,9 +75,17 @@ export class Server {
   async resolve(
     client: any,
     base: any,
-    path: string[],
+    path: string | string[],
     bodyParams: Record<string, any>
   ): Promise<{ handled: boolean; result?: Resolvable<any> }> {
+    if (typeof path === "string")
+      return this.resolve(
+        client,
+        base,
+        path.split("/").filter((seg) => seg.length),
+        bodyParams
+      );
+
     const match = getEnumerated(base)
       .map((key) => ({
         route:

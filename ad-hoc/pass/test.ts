@@ -102,5 +102,6 @@ class User {
       params
     );
   });
+  
   unpacked.doSomething(10);
 })();

@@ -134,22 +134,22 @@ export function packView<T, K extends keyof T>(
 export const unpackView = <T>(
   packed: PackedView<T>,
   path = "",
-  remote?: (path: string, params: Record<string, any>) => Resolvable<any>
+  remote?: (path: string, bodyParams: Record<string, any>) => Resolvable<any>
 ): View<T> => {
   if (packed.isState) return packed.data as View<T>;
   if (packed.isAction) {
     if (packed.canExecute) {
       return ((...args) => {
         const paramMap = packed.params ?? {};
-        const params: Record<string, any> = {};
+        const bodyParams: Record<string, any> = {};
 
         args.forEach((arg, i) => {
           if (!(i in paramMap))
             throw new Error(`Unknown parameter at position ${i}`);
-          params[paramMap[i]] = arg;
+          bodyParams[paramMap[i]] = arg;
         });
 
-        return remote?.(path, params);
+        return remote?.(path, bodyParams);
       }) as View<T>;
     } else {
       return null as View<T>;
