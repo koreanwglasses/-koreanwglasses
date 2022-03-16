@@ -81,12 +81,7 @@ class User {
   const server = new Server();
   const base = { api: { user: User } };
 
-  const { result } = await server.resolve(
-    null,
-    base,
-    ["api", "user", "test"],
-    {}
-  );
+  const { result } = await server.resolve(null, base, "/api/user/test", {});
 
   const view = await packView(
     null,
