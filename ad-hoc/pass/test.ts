@@ -11,6 +11,7 @@ import {
   query,
   param,
   mountpath,
+  client,
 } from "pass";
 
 export class Test {
@@ -71,8 +72,8 @@ class User {
 
   @policy(ALLOW)
   @action
-  doSomething(@param("n") n: number) {
-    console.log(n);
+  doSomething(@param("n") n: number, @client client?: any) {
+    console.log(client, n);
   }
 }
 
@@ -95,7 +96,7 @@ class User {
   const unpacked = unpackView(view, "", (path, params) => {
     console.log(`Action called on ${path}`);
     server.resolve(
-      null,
+      {test: "string"},
       base,
       path.split("/").filter((seg) => seg.length),
       params

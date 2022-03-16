@@ -52,7 +52,7 @@ const compareSpecificity = (route0: string[], route1: string[]) => {
 // Puts args into an array
 const prepArgs = (
   paramMap: Partial<Record<string | typeof CLIENT_PARAM, number>>,
-
+  client: any,
   params: Record<string, string>
 ) => {
   const args: any[] = [];
@@ -64,6 +64,10 @@ const prepArgs = (
     while (args.length < i) args.push(undefined);
     args[i] = value;
   });
+
+  const i = paramMap[CLIENT_PARAM];
+  if (typeof i === "number") args[i] = client;
+
   return args;
 };
 
@@ -126,7 +130,7 @@ export class Server {
 
       // Prepare arguments to query function based on metadata/decorators
       const paramMap = getMetadata(base[key]).params ?? {};
-      const args = prepArgs(paramMap, pathParams);
+      const args = prepArgs(paramMap, client, pathParams);
 
       // Construct
       const result = new cons(...args);
@@ -150,7 +154,7 @@ export class Server {
 
       // Prepare arguments to query function based on metadata/decorators
       const paramMap = getMetadata(base, key).params ?? {};
-      const args = prepArgs(paramMap, params);
+      const args = prepArgs(paramMap, client, params);
 
       // Compute query
       let result = Cascade.resolve(query.apply(base, args));
@@ -189,7 +193,7 @@ export class Server {
 
       const paramMap = getMetadata(base, key).params ?? {};
       // Ignore path params
-      const args = prepArgs(paramMap, bodyParams);
+      const args = prepArgs(paramMap, client, bodyParams);
 
       const result = await Cascade.resolve(
         action.apply(base, args)
