@@ -7,12 +7,12 @@ import {
   packView,
   unpackView,
   action,
-  Server,
   query,
   param,
   mountpath,
   client,
-} from "pass";
+  resolve,
+} from "pacs";
 
 @policy(ALLOW)
 @mountpath("/api/user")
@@ -58,22 +58,16 @@ class User {
 }
 
 (async () => {
-  const server = new Server();
   const base = { api: { user: User } };
 
-  const { result } = await server.resolve<User>(
-    null,
-    base,
-    "/api/user/test",
-    {}
-  );
+  const { result } = await resolve<User>(null, base, "/api/user/test", {});
 
   const packed = packView(null, result);
 
   packed.chain((view) => {
     const unpacked = unpackView(view, "", (path, bodyParams) => {
       console.log(`Action called on ${path}`);
-      server.resolve({ test: "string" }, base, path, bodyParams);
+      resolve({ test: "string" }, base, path, bodyParams);
     });
 
     console.log(unpacked);
