@@ -72,12 +72,12 @@ const prepArgs = (
 };
 
 export class Server {
-  async resolve(
+  async resolve<T = any>(
     client: any,
     base: any,
     path: string | string[],
     bodyParams: Record<string, any>
-  ): Promise<{ handled: boolean; result?: Resolvable<any> }> {
+  ): Promise<{ handled: boolean; result?: Resolvable<T> }> {
     if (typeof path === "string")
       return this.resolve(
         client,
@@ -141,7 +141,7 @@ export class Server {
       const args = prepArgs(paramMap, client, pathParams);
 
       // Construct
-      const result = new cons(...args);
+      const result = new cons(...args) as Resolvable<T>;
       if (remainder.length > 0) {
         // Continue to resolve if query is not terminal (i.e. in the middle of the path)
         return await this.resolve(client, result, remainder, bodyParams);
@@ -165,7 +165,7 @@ export class Server {
       const args = prepArgs(paramMap, client, params);
 
       // Compute query
-      let result = Cascade.resolve(query.apply(base, args));
+      let result = Cascade.resolve(query.apply(base, args) as Resolvable<T>);
       if (remainder.length > 0) {
         // Continue to resolve if query is not terminal (i.e. in the middle of the path)
         result = result.chain(async (queryResult) => {
@@ -204,7 +204,7 @@ export class Server {
       const args = prepArgs(paramMap, client, bodyParams);
 
       const result = await Cascade.resolve(
-        action.apply(base, args)
+        action.apply(base, args) as Resolvable<T>
       ).toPromise();
 
       return {
