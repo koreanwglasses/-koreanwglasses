@@ -1,6 +1,0 @@
-[submodule "cascade"]
-	path = cascade
-	url = git@github.com:koreanwglasses/cascade.git
-[submodule "restate"]
-	path = restate
-	url = git@github.com:koreanwglasses/restate.git

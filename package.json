@@ -1,16 +1,14 @@
 {
-  "packageManager": "yarn@3.1.1",
+  "packageManager": "yarn@3.2.0",
   "workspaces": [
-    "ad-hoc/*",
-    "card-game-sandbox",
-    "cascade",
-    "pacs",
-    "restate"
+    "tests/*",
+    "mutable",
+    "pogui"
   ],
   "devDependencies": {
     "@yarnpkg/plugin-workspace-tools": "^3.1.1-rc.6",
     "@yarnpkg/sdks": "^2.5.1-rc.6",
-    "prettier": "^2.5.1",
-    "typescript": "^4.5.4"
+    "prettier": "^2.6.2",
+    "typescript": "^4.6.4"
   }
 }
